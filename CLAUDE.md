@@ -1,6 +1,6 @@
 # voice-control-game — 聲控大冒險
 
-靜態網頁遊戲（`index.html`＋`engine.js`＋`manual.html`＋PWA 檔），無建置步驟。攝影機體感系列（whack-a-mole-cam 等）的「聲音版」，但畫面刻意改成 **2D Canvas**（不是 Three.js），配色深藍＋薄荷綠＋桃紅。標準配備（跑馬燈、警語、⚙ 收合設定、PWA 段落、排行榜樣式）複製自 `whack-a-mole-cam`。port 8881。2026-11-14 建立（使用者從「聲音相關工具建議」清單選了這個，玩法細節都是我自定）。**尚未建 repo、尚未上線**。visitor-badge `m255525.voicecontrolgame`。
+靜態網頁遊戲（`index.html`＋`engine.js`＋`manual.html`＋PWA 檔），無建置步驟。攝影機體感系列（whack-a-mole-cam 等）的「聲音版」，但畫面刻意改成 **2D Canvas**（不是 Three.js），配色深藍＋薄荷綠＋桃紅。標準配備（跑馬燈、警語、⚙ 收合設定、PWA 段落、排行榜樣式）複製自 `whack-a-mole-cam`。port 8881。2026-11-14 建立（使用者從「聲音相關工具建議」清單選了這個，玩法細節都是我自定）。2026-11-15 上線：公開 repo <https://github.com/M255525/voice-control-game>（使用者自己 `gh repo create`），GitHub Pages（Actions workflow，push 到 master 自動部署）<https://m255525.github.io/voice-control-game/>。visitor-badge `m255525.voicecontrolgame`。
 
 ## 檔案
 - `engine.js`（ES module，瀏覽器與 Node 共用、不碰 DOM）：`rmsOf`／`dbOf`／`levelFromDb(db, cal, sens)`（校準噪音 +6dB 起算、最大聲 -3dB 滿格、至少 18dB 動態範圍）、`volumeCalibration`、`detectPitch`（YIN 簡化版 70～1100Hz，`minRms` 門檻）、`PitchSmoother`（中位數、單幀 >9 半音跳動忽略）、`OnsetDetector`（先安靜 ≥ quietSec 再衝過門檻才算「喊一聲」）、`pitchRange`（低高音至少 7 半音，否則撐到 9）、`VOICE_PRESETS`、`hzToNote`、`pitchPos`（對數）、`PATTERNS`（自寫 11 段簡單旋律，0～7 階）、`pickPattern`、`laneToPos`。
