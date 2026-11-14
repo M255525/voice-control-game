@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>聲控大冒險 操作手冊</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📖</text></svg>">
+<style>
+  :root { --bg: #141842; --card: #1f2563; --fg: #f1f2ff; --muted: #b7bbe6; --accent: #ffd84d; --pink: #ff4f8b; --mint: #5ef2d6; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--fg); font-family: "Microsoft JhengHei", "Noto Sans TC", sans-serif; line-height: 1.85; }
+  main { max-width: 820px; margin: 0 auto; padding: 24px 16px 48px; }
+  h1 { font-size: clamp(26px, 6vw, 36px); margin: 0 0 4px; }
+  h2 { color: var(--accent); font-size: 20px; margin: 28px 0 8px; border-left: 4px solid var(--pink); padding-left: 10px; }
+  h3 { color: var(--mint); font-size: 16px; margin: 14px 0 4px; }
+  section { background: var(--card); border-radius: 14px; padding: 4px 18px 12px; }
+  .muted { color: var(--muted); font-size: 14px; }
+  table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  th, td { border-bottom: 1px solid rgba(255,255,255,.12); padding: 8px 6px; text-align: left; vertical-align: top; }
+  th { color: var(--accent); }
+  .table-wrap { overflow-x: auto; }
+  a { color: var(--accent); }
+  .warn { background: rgba(255,79,139,.12); border: 1px solid rgba(255,79,139,.45); border-radius: 12px; padding: 10px 14px; }
+  kbd { background: rgba(255,255,255,.15); border-radius: 4px; padding: 0 6px; }
+</style>
+</head>
+<body>
+<main>
+  <h1>🎤 聲控大冒險 操作手冊</h1>
+  <p class="muted">用聲音玩的遊戲：音量控制熱氣球、喊一聲讓青蛙跳、唱高唱低讓小鳥吃音符。<a href="index.html">← 回到遊戲</a></p>
+
+  <h2>⚠ 使用警語</h2>
+  <section class="warn">
+    <ul>
+      <li>本遊戲僅供個人娛樂、教學示範與發聲練習使用，禁止未經授權公開發布、販售或商業化使用。</li>
+      <li>麥克風聲音<b>只在你的瀏覽器裡</b>即時計算音量（分貝）和音高（Hz），<b>不錄音、不存檔、不上傳、不做語音辨識</b>，也聽不懂你說了什麼。</li>
+      <li>大聲喊叫請注意場合與音量，別嚇到旁人；不要長時間用力嘶吼，喉嚨不舒服、頭暈或喘不過氣就立刻休息、喝水。</li>
+      <li>本遊戲<b>不是</b>聽力、嗓音、肺活量或任何健康檢測工具。結算畫面的「最長一口氣」「音域」只是遊戲紀錄，數值會受麥克風、距離、環境噪音影響，不能當作健康判斷。</li>
+      <li>長輩與小朋友請在旁陪同。</li>
+    </ul>
+  </section>
+
+  <h2>快速開始</h2>
+  <section>
+    <ol>
+      <li>在主畫面選一個遊戲（🎈 熱氣球、🐸 跳跳蛙、🐤 音階小鳥）和難度。</li>
+      <li>按「🎤 開麥克風開始」，瀏覽器問要不要使用麥克風時按「允許」。</li>
+      <li>第一次會做<b>聲音校準</b>：先安靜 2 秒量環境噪音，再大聲發出聲音 2 秒；音階小鳥還會請你唱一個低音、一個高音。照畫面上的字做就好。</li>
+      <li>倒數 3、2、1 的時候角色已經會跟著你的聲音動，可以先試試看。</li>
+      <li>時間到或愛心用完就結算，可以記錄暱稱上排行榜。</li>
+    </ol>
+    <p class="muted">沒有麥克風、或在安靜的場合，可以按「改用滑鼠／觸控／空白鍵玩」。麥克風需要在 <b>https</b> 網址或 <code>localhost</code> 下才能使用。</p>
+  </section>
+
+  <h2>三個遊戲怎麼玩</h2>
+  <section>
+    <h3>🎈 熱氣球飛行（練：控制音量、拉長聲音）</h3>
+    <p>持續發出「啊——」或「嗚——」，聲音越大，燃燒器的火越旺、氣球越往上；安靜下來氣球就慢慢往下降。烏雲柱和山崖之間有空隙，從空隙穿過去。右邊聲音計上的白線大約是「讓氣球停在原地」的音量。</p>
+    <ul><li>穿過一關 +10、吃到星星 +20</li><li>撞到扣一顆愛心，接下來 1.4 秒會閃爍（不會再被扣）</li><li>小訣竅：不用一直很大聲，用「中等音量、長長的一口氣」最好控制。</li></ul>
+    <h3>🐸 大聲跳跳蛙（練：短促發聲、控制大小聲）</h3>
+    <p>青蛙會自己往前跑。喊一聲「嘿！」就跳，<b>越大聲跳越高</b>；把聲音拉長「嘿——」上升時能多飄一下。喊完要先停一下（安靜一點點）才能再跳下一次。</p>
+    <ul>
+      <li>低石頭：小聲跳就過；高樹樁：要大聲一點</li>
+      <li>🐦‍⬛ 烏鴉（普通、困難才有）：飛在半空中，<b>安靜不要跳</b>就會從頭上飛過去；或用超大聲跳過它</li>
+      <li>跳過障礙 +10～15（加連續加分）、空中金幣 +20（要大聲跳才吃得到）</li>
+      <li>右邊聲音計上的白線是「喊一聲」的門檻，可以在 ⚙ 常用設定調整。</li>
+    </ul>
+    <h3>🐤 音階小鳥（練：音準、音高控制）</h3>
+    <p>畫面左邊有 8 條線：Do Re Mi Fa Sol La Si Do。唱高音小鳥往上飛、唱低音往下飛，不出聲小鳥就慢慢往下滑。一排排彩色音符飄過來，讓小鳥飛到音符的高度把它吃掉。</p>
+    <ul>
+      <li>這 8 階是把<b>你校準時唱的低音到高音</b>平均分成 8 段，所以男生女生、大人小孩都能玩；不是標準音高考試。</li>
+      <li>每個音符 +10，連續吃到再加分（最多 +10）；漏掉一個連擊歸零。沒有愛心，玩到時間結束。</li>
+      <li>右邊會顯示你現在唱的音名（例如「Sol・G4・392 Hz」）。</li>
+      <li>用「啊——」「嗚——」這種母音最穩；用講話、氣音、口哨聲都比較不準。</li>
+      <li>旋律是遊戲自己寫的簡單級進／跳進（慢慢往上、小山丘、樓梯、波浪等），不是任何現成歌曲。</li>
+    </ul>
+  </section>
+
+  <h2>聲音校準</h2>
+  <section>
+    <ul>
+      <li><b>安靜 2 秒</b>：量環境噪音（例如冷氣、風扇）。這段時間請不要講話。</li>
+      <li><b>大聲 2 秒</b>：量你玩遊戲時的最大音量。按「▶ 準備好了，開始」或直接出聲就會開始量。</li>
+      <li><b>低音、高音各 3 秒</b>（只有音階小鳥、而且音域設定是「開始前量」時）：唱你舒服的最低音和最高音。如果兩個音太接近，遊戲會自動撐開到至少 9 個半音。</li>
+      <li>校準結果會存在這台裝置，下次可以按「用上次的校準直接玩」。換地方、換麥克風或覺得不靈，就按「↻ 重新校準」。</li>
+      <li>如果出現「好像沒聽到夠大的聲音」：靠近麥克風一點、檢查是不是選錯麥克風（⚙ 常用設定 → 🎤 聲音 → 麥克風），或筆電的麥克風被系統靜音了。</li>
+    </ul>
+  </section>
+
+  <h2>滑鼠／觸控／鍵盤</h2>
+  <section>
+    <div class="table-wrap"><table>
+      <tr><th>遊戲</th><th>滑鼠／觸控</th><th>鍵盤</th></tr>
+      <tr><td>🎈 熱氣球</td><td>按住畫面往上飛，放開往下</td><td>按住 <kbd>空白鍵</kbd></td></tr>
+      <tr><td>🐸 跳跳蛙</td><td>點一下跳，按久一點跳更高</td><td><kbd>空白鍵</kbd></td></tr>
+      <tr><td>🐤 音階小鳥</td><td>按住畫面上下拖曳，手指／滑鼠在哪個高度小鳥就去哪</td><td>按住 <kbd>1</kbd>～<kbd>8</kbd>（Do～高音 Do），或按住 <kbd>↑</kbd> <kbd>↓</kbd></td></tr>
+    </table></div>
+  </section>
+
+  <h2>⚙ 常用設定</h2>
+  <section>
+    <div class="table-wrap"><table>
+      <tr><th>區塊</th><th>設定</th><th>說明</th></tr>
+      <tr><td>🎮 遊戲</td><td>每局時間</td><td>30／60／90／120 秒，預設 60 秒</td></tr>
+      <tr><td></td><td>生命</td><td>3 顆、5 顆，或「練習模式」撞到不扣命（給長輩、小朋友、第一次玩）</td></tr>
+      <tr><td></td><td>音效</td><td>預設只在滑鼠模式播放。麥克風模式如果要開，請戴耳機，否則喇叭的聲音會被麥克風聽到、讓角色亂動</td></tr>
+      <tr><td>🎤 聲音</td><td>麥克風靈敏度</td><td>1～5，喊了沒反應調高、旁邊有人講話就亂動調低</td></tr>
+      <tr><td></td><td>喊一聲的門檻</td><td>跳跳蛙要多大聲才算「喊一聲」</td></tr>
+      <tr><td></td><td>音域</td><td>音階小鳥用：開始前量我的低音高音（建議），或直接選低音／中音／高音</td></tr>
+      <tr><td></td><td>麥克風</td><td>有多支麥克風（例如耳機麥克風）時選要用哪一支</td></tr>
+      <tr><td></td><td>聲音計／偵測數值</td><td>右側音量直條；偵測數值會顯示 dB、Hz、清晰度、fps，調手感時用</td></tr>
+      <tr><td>🏆 紀錄</td><td>清除</td><td>清除三個遊戲的最高分與排行榜</td></tr>
+      <tr><td>ℹ 關於本工具</td><td></td><td>創作者、操作手冊、使用警語、加入主畫面、訪客數</td></tr>
+    </table></div>
+  </section>
+
+  <h2>課堂／樂齡活動建議玩法</h2>
+  <section>
+    <ul>
+      <li><b>暖身發聲</b>：先玩 🎈 熱氣球 30 秒，練習「長長的一口氣」，結算畫面看誰的「最長一口氣」最長。</li>
+      <li><b>分組接力</b>：一人一局 🐸 跳跳蛙，小組加總分數；投影到大螢幕時用外接麥克風效果最好。</li>
+      <li><b>音準挑戰</b>：🐤 音階小鳥選「簡單」，先唱 Do Re Mi 熟悉 8 條線，再挑戰「困難」。</li>
+      <li>多人輪流玩時，換人後按「↻ 重新校準」（每個人的音量與音域都不一樣）。</li>
+      <li>教室裡很多人同時出聲會互相干擾，建議一次只讓一個人對著麥克風玩。</li>
+    </ul>
+  </section>
+
+  <h2>資料儲存與隱私</h2>
+  <section>
+    <ul>
+      <li>麥克風的聲音只拿來即時算音量和音高，不會錄下來，也不會送到任何伺服器。</li>
+      <li>只在這台裝置的瀏覽器（localStorage）存：設定、校準數值（噪音 dB、最大聲 dB、低音／高音 Hz）、最高分、排行榜、上次輸入的暱稱。</li>
+      <li>網頁會連線取得頂部跑馬燈公告與訪客計數徽章，這兩者不會拿到任何聲音資料。</li>
+      <li>想全部清掉：⚙ 常用設定裡可清校準與紀錄；或清除這個網站的瀏覽器資料。</li>
+    </ul>
+  </section>
+
+  <h2>常見問題</h2>
+  <section>
+    <p><b>Q：按了開始沒有反應／說權限被拒絕？</b><br>點網址列左邊的鎖頭或設定圖示，把「麥克風」改成「允許」後重新整理。用 Line、FB 內建瀏覽器打開時常常不能用麥克風，請改用 Chrome、Edge 或 Safari。</p>
+    <p><b>Q：角色一直自己動？</b><br>環境太吵（冷氣、風扇、旁邊有人講話）或開著音效。按「↻ 重新校準」，或把靈敏度調低，音效關掉。</p>
+    <p><b>Q：音階小鳥一直跳來跳去不穩？</b><br>用穩定的「啊——」母音唱，不要用講的；離麥克風近一點。開「顯示偵測數值」看清晰度，0.8 以上比較穩。</p>
+    <p><b>Q：手機可以玩嗎？</b><br>可以，手機的麥克風和觸控都能用。直式畫面看到的前方距離比較短，建議橫放。</p>
+    <p><b>Q：iPhone 上沒聲音計？</b><br>請確認不是在 LINE 內建瀏覽器開，並在 Safari 允許麥克風；靜音模式不影響麥克風輸入。</p>
+  </section>
+
+  <h2 id="creator-h">👤 創作者</h2>
+  <section id="creator">
+<div class="mk-creator">
+<style>.mk-creator{line-height:1.75}.mk-creator h3{margin:14px 0 6px;font-size:1.05em}.mk-creator table{width:100%;border-collapse:collapse;font-size:.95em}.mk-creator td,.mk-creator th{text-align:left;padding:5px 6px;border-bottom:1px solid rgba(128,128,128,.3);vertical-align:top}.mk-creator th{white-space:nowrap}.mk-creator ul{margin:4px 0;padding-left:1.4em}.mk-creator .mk-tags{display:flex;flex-wrap:wrap;gap:6px;margin:4px 0}.mk-creator .mk-tags span{border:1px solid rgba(128,128,128,.45);border-radius:999px;padding:1px 10px;font-size:.9em}</style>
+<p><b>Mark Tsai（蔡豐全）</b>為深耕創業輔導與數位轉型領域的顧問與講師，長期擔任勞動力發展署創業顧問與多項政府計畫的顧問、業師與評審委員，協助中小企業導入數據分析與 AI 工具、申請政府補助計畫，並具備跨境電商實務與講師培訓的豐富經驗。本工具是其推廣 AI 工具運用於教學與課程情境的作品之一。</p>
+<!-- CONTACT_LINE -->
+<h3>專長</h3>
+<div class="mk-tags"><span>銷售數據分析</span><span>AI 工具運用</span><span>政府補助計畫申請</span><span>創業</span><span>跨境電商</span></div>
+<h3>證照</h3>
+<table>
+<thead><tr><th>年度</th><th>證照</th></tr></thead>
+<tbody>
+<tr><td>2013</td><td>青創總會 創業輔導顧問師班</td></tr>
+<tr><td>2014</td><td>青創總會 網路行銷講師培訓班</td></tr>
+<tr><td>2016</td><td>阿里巴巴 P4P 認證講師</td></tr>
+<tr><td>2017</td><td>iCap 訓練規劃與評量職能基準課程</td></tr>
+<tr><td>2023</td><td>iCap 職能導向課程申請認證實作班</td></tr>
+<tr><td>2025</td><td>iPAS AI 應用規劃師－初級</td></tr>
+<tr><td>2025</td><td>新北市社會局 社區數位陪伴員</td></tr>
+</tbody>
+</table>
+<h3>經歷</h3>
+<ul>
+<li>勞動力發展署桃竹苗分署 創業顧問（2017－迄今）</li>
+<li>勞動力發展署（北北基）小型企業人力提升計畫 顧問（2019－迄今）</li>
+<li>勞動力發展署（桃竹苗）小型企業人力提升計畫 顧問（2019－迄今）</li>
+<li>農業部農業科技司「科技農企業雙軸轉型躍升發展」科技計畫 業師（2025－2026）</li>
+<li>勞動力發展署 企業人力資源提升計畫 審查委員（2024）</li>
+<li>勞動力發展署 職前訓練評鑑計畫 委員（2022）</li>
+<li>勞動部桃竹苗分署 桃竹苗區域運籌人力資源整合服務計畫 顧問（2022－2023）</li>
+<li>經濟部中小企業處 SBIR 海選專案 評審委員（2019－2024）</li>
+<li>勞動力發展署 數位學習課程清單審查會議 審查委員（2024－2025）</li>
+<li>輔仁大學創新跨領域學院 課務委員（2024－2025）</li>
+<li>台北市進出口商業同業公會 跨境電商生態村 顧問</li>
+<li>台灣網商協會 顧問</li>
+<li>中華職能開發策進會 顧問（2018－2020）</li>
+<li>新北市汽車美容人員職業工會 顧問（2023－迄今）</li>
+<li>中華網路行銷講師協會 顧問（2022－迄今）</li>
+<li>新北市社企電商基地 輔導顧問（2018－2020）</li>
+<li>阿里巴巴國際站平台 認證講師（2016）</li>
+<li>巨匠電腦 跨境電子商務班 講師（2016－2017）</li>
+</ul>
+</div>
+  </section>
+</main>
+</body>
+</html>

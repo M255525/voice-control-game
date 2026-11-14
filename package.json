@@ -1,0 +1,6 @@
+{
+  "name": "voice-control-game",
+  "private": true,
+  "type": "module",
+  "scripts": { "test": "node tools/test_engine.mjs" }
+}
