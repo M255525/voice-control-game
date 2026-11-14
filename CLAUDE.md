@@ -24,7 +24,7 @@
 - 音效預設「只在滑鼠模式播放」——麥克風模式下喇叭聲會被收進去讓角色亂動。
 
 ## 標準配備
-跑馬燈（共用 Apps Script，`vcgMarquee`，不可關）、操作手冊 `manual.html`（完整創作者區塊；**聯絡信箱那行是 `<!-- CONTACT_LINE -->` 佔位**，隱私外掛擋住我寫入 email，要使用者自己補）、使用警語（頁面 `.warnbox`＋首訪 `#warn-modal`；強調不錄音、不是健康檢測、注意喉嚨）、加入主畫面、訪客計數器、⚙ 常用設定（收合 `details.set-sec`，`vcg-set-open`；區塊：遊戲／聲音／紀錄／關於本工具）。
+跑馬燈（共用 Apps Script，`vcgMarquee`，不可關）、操作手冊 `manual.html`（完整創作者區塊；聯絡信箱那行由使用者用 `!` 指令從 git config 填入（隱私外掛擋住我寫 email；之後別的工具要補 email 也照這招請使用者自己跑））、使用警語（頁面 `.warnbox`＋首訪 `#warn-modal`；強調不錄音、不是健康檢測、注意喉嚨）、加入主畫面、訪客計數器、⚙ 常用設定（收合 `details.set-sec`，`vcg-set-open`；區塊：遊戲／聲音／紀錄／關於本工具）。
 
 ## 儲存（localStorage，全部 try/catch）
 `vcg-settings`、`vcg-cal`、`vcg-best-<game>`、`vcg-lb-<game>`、`vcg-last-name`、`vcg-warned`、`vcg-set-open`、`vcgMarquee`。
