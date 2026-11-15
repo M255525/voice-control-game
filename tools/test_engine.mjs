@@ -106,5 +106,33 @@ ok(E.PATTERNS.every(p => p.notes.every(n => n >= 0 && n < E.BIRD_LANES)), '旋�
 }
 ok(E.laneToPos(0) === 0.06 && Math.abs(E.laneToPos(7) - 0.94) < 1e-9, '階 → 高度');
 
+// ---------- 🥁 節奏太鼓 ----------
+{
+  let seed = 7; const rnd = () => { seed = (seed * 16807) % 2147483647; return seed / 2147483647; };
+  for (const diff of ['easy', 'normal', 'hard']) {
+    for (const dur of [30, 60, 120]) {
+      const ch = E.drumChart(diff, dur, rnd);
+      ok(ch.length > 0 && ch.every(n => n.t >= 3 && n.t + n.len <= dur), `${diff} ${dur}s 譜面在時間內`);
+      ok(ch.every((n, i) => i === 0 || n.t >= ch[i - 1].t), `${diff} 排序`);
+      let minGap = 9; for (let i = 1; i < ch.length; i++) { const prevEnd = ch[i - 1].t + ch[i - 1].len; minGap = Math.min(minGap, ch[i].t - prevEnd); }
+      ok(minGap >= 0.24, `${diff} 最小間隔 ${minGap.toFixed(3)}s`);
+      ok(ch.every(n => n.k !== 'r' || n.len > 0.5), `${diff} 連打條有長度`);
+      if (diff === 'easy') ok(ch.every(n => n.k !== 'r') && ch.every(n => Math.abs((n.t - 3) * 80 / 60 - Math.round((n.t - 3) * 80 / 60)) < 1e-3), '簡單只有整拍、沒有連打');
+    }
+  }
+  const nE = E.drumChart('easy', 60, () => 0.5).length, nH = E.drumChart('hard', 60, () => 0.5).length;
+  ok(nH > nE * 1.8, `困難比簡單密 ${nE} → ${nH}`);
+  const ch = E.drumChart('normal', 120, () => 0.3), spb = 0.6;
+  let hasRest = false; for (let i = 1; i < ch.length; i++) if (ch[i].t - (ch[i - 1].t + ch[i - 1].len) >= 4 * spb * 0.99) hasRest = true;
+  ok(hasRest, '有休息小節');
+  const win = E.DRUM_WIN.normal, notes = [{ t: 1, k: 's' }, { t: 1.5, k: 'b' }, { t: 2, k: 'r', len: 1 }, { t: 3.5, k: 's' }];
+  let j = E.drumJudge(notes, 1.03, win); ok(j && j.idx === 0 && j.grade === 'perfect', '完美');
+  j = E.drumJudge(notes, 1.13, win); ok(j && j.idx === 0 && j.grade === 'good', '不錯');
+  ok(E.drumJudge(notes, 1.25, win) === null, '兩個鼓點中間不算');
+  ok(E.drumJudge(notes, 1.45, win).idx === 1, '挑最近的');
+  notes[1].done = true; ok(E.drumJudge(notes, 1.45, win) === null, '打過的不能再打');
+  ok(E.drumJudge(notes, 2.5, win) === null, '連打條不給 drumJudge');
+  ok(E.drumRollAt(notes, 2.5, win) === notes[2] && E.drumRollAt(notes, 3.3, win) === null, '連打條範圍');
+}
 console.log(`\n${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);

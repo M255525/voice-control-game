@@ -178,3 +178,65 @@ export function pickPattern(diff, rand = Math.random, last = '') {
 
 /** 音高階 → 0～1 高度位置（第 0 階在 0.06、第 7 階在 0.94） */
 export function laneToPos(lane) { return 0.06 + (lane / (BIRD_LANES - 1)) * 0.88; }
+
+/* ---------- 🥁 節奏太鼓：譜面與判定（節奏型都是自寫的，以「拍」為單位、一小節 4 拍） ---------- */
+// k：s＝小鼓點（拍一下）、b＝大鼓點（用力拍／大聲喊）、r＝連打條（len 拍內拍越多下越多分）
+export const DRUM_BPM = { easy: 80, normal: 100, hard: 120 };
+export const DRUM_WIN = {   // 判定窗（秒，前後各算）
+  easy: { perfect: 0.11, good: 0.2 }, normal: { perfect: 0.085, good: 0.16 }, hard: { perfect: 0.07, good: 0.13 },
+};
+export const DRUM_BARS = {
+  easy: [
+    [[0, 's'], [2, 's']], [[0, 's'], [1, 's'], [2, 's']], [[0, 's'], [1, 's'], [2, 's'], [3, 's']],
+    [[0, 'b'], [2, 's']], [[0, 's'], [2, 'b']], [[0, 's'], [1, 's'], [2, 'b']],
+  ],
+  normal: [
+    [[0, 's'], [1, 's'], [2, 's'], [3, 's']], [[0, 'b'], [1, 's'], [2, 's'], [3, 'b']],
+    [[0, 's'], [1, 's'], [1.5, 's'], [2, 's']], [[0, 's'], [0.5, 's'], [1, 's'], [2, 'b']],
+    [[0, 'r', 2], [3, 'b']], [[0, 's'], [1.5, 's'], [3, 's']], [[0, 'b'], [2, 'r', 1.5]],
+  ],
+  hard: [
+    [[0, 's'], [0.5, 's'], [1, 's'], [2, 's'], [2.5, 's'], [3, 'b']], [[0, 'b'], [1.5, 's'], [2, 's'], [3.5, 's']],
+    [[0, 's'], [0.5, 's'], [1, 'b'], [2, 's'], [2.5, 's'], [3, 'b']], [[0, 'r', 2], [2.5, 's'], [3, 'b']],
+    [[0.5, 's'], [1, 's'], [2, 'b'], [2.5, 's'], [3.5, 's']], [[0, 's'], [1, 's'], [1.5, 's'], [2, 's'], [3, 'b'], [3.5, 'b']],
+    [[0, 'b'], [1, 'r', 2], [3.5, 's']],
+  ],
+};
+/** 產生整局譜面：lead 秒後開始、每 4～6 小節插一個休息小節；回傳依時間排序的 [{t, k, len(秒), i}] */
+export function drumChart(diff, durationSec, rand = Math.random, lead = 3) {
+  const bpm = DRUM_BPM[diff] || 100, spb = 60 / bpm, bars = DRUM_BARS[diff] || DRUM_BARS.normal;
+  const out = [];
+  let t0 = lead, bar = 0, sinceRest = 0, restEvery = 4 + Math.floor(rand() * 3), last = -1;
+  while (t0 + 4 * spb <= durationSec - 0.5) {
+    if (bar > 0 && sinceRest >= restEvery) { sinceRest = 0; restEvery = 4 + Math.floor(rand() * 3); }   // 休息一小節
+    else {
+      let pick = Math.floor(rand() * bars.length);
+      if (bar === 0) pick = 0;                     // 第一小節固定最簡單的
+      else if (pick === last) pick = (pick + 1) % bars.length;
+      last = pick;
+      bars[pick].forEach(([b, k, len]) => out.push({ t: +(t0 + b * spb).toFixed(4), k, len: k === 'r' ? +(len * spb).toFixed(4) : 0 }));
+      sinceRest++;
+    }
+    t0 += 4 * spb; bar++;
+  }
+  out.sort((a, b) => a.t - b.t).forEach((n, i) => { n.i = i; });
+  return out;
+}
+/** 判定一次打擊：回傳 { idx, grade:'perfect'|'good', dt } 或 null（附近沒有可打的鼓點）；連打條另外處理 */
+export function drumJudge(notes, t, win) {
+  let best = null;
+  for (let i = 0; i < notes.length; i++) {
+    const n = notes[i];
+    if (n.done || n.k === 'r') continue;
+    const d = t - n.t;
+    if (d < -win.good) break;                     // 之後的都更晚
+    if (Math.abs(d) <= win.good && (!best || Math.abs(d) < Math.abs(best.dt))) best = { idx: i, dt: d };
+  }
+  if (!best) return null;
+  best.grade = Math.abs(best.dt) <= win.perfect ? 'perfect' : 'good';
+  return best;
+}
+/** 現在正在經過判定線的連打條（含前後 good 窗） */
+export function drumRollAt(notes, t, win) {
+  return notes.find(n => n.k === 'r' && t >= n.t - win.good && t <= n.t + n.len + win.good) || null;
+}

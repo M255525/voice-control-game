@@ -88,7 +88,8 @@
   .card { width: 100%; background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.2); border-radius: 18px; padding: 14px; text-align: left; }
   .card-title { font-weight: 900; color: #ffd84d; font-size: 16px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; }
   .card-title small { font-weight: 400; color: #fff; opacity: .75; font-size: 12px; }
-  .games { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  .games { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+  @media (max-width: 900px) and (min-width: 621px) { .games { grid-template-columns: repeat(2, 1fr); } }
   @media (max-width: 620px) {
     .games { grid-template-columns: 1fr; }
     .gcard { display: grid; grid-template-columns: 46px 1fr; column-gap: 10px; row-gap: 3px; align-items: start; }
@@ -202,11 +203,11 @@
       <div class="title">🎤 聲控大冒險</div>
       <div class="subtitle">
         不用手、不用鍵盤——<b>用你的聲音</b>玩遊戲！<br>
-        發出「啊——」讓熱氣球飛高、大喊一聲讓青蛙跳、唱高唱低讓小鳥吃音符。
+        發出「啊——」讓熱氣球飛高、大喊一聲讓青蛙跳、唱高唱低讓小鳥吃音符、跟著節奏拍手打鼓。
       </div>
 
       <div class="card">
-        <div class="card-title">🎮 選一個遊戲<small>三種玩法練三種聲音</small></div>
+        <div class="card-title">🎮 選一個遊戲<small>四種玩法練四種聲音</small></div>
         <div class="games" id="games">
           <button type="button" class="gcard" data-g="balloon">
             <span class="ge">🎈</span><span class="gn">熱氣球飛行</span><span class="gt">音量控制</span>
@@ -222,6 +223,11 @@
             <span class="ge">🐤</span><span class="gn">音階小鳥</span><span class="gt">音高</span>
             <span class="gd">唱高音小鳥往上飛、唱低音往下飛，去吃一排排飄過來的音符。開始前會先量你的低音和高音。</span>
             <span class="gb" data-best="bird"></span>
+          </button>
+          <button type="button" class="gcard" data-g="drum">
+            <span class="ge">🥁</span><span class="gn">節奏太鼓</span><span class="gt">拍點</span>
+            <span class="gd">鼓點從上面落下來，碰到鼓面的那一刻拍手或喊「咚！」。粉紅大鼓點要用力拍，金色連打條拍越多下越多分。</span>
+            <span class="gb" data-best="drum"></span>
           </button>
         </div>
       </div>
@@ -329,6 +335,9 @@
           <select id="set-shout"><option value="0.25">小聲就跳</option><option value="0.35">普通</option><option value="0.5">要比較大聲</option></select></label>
         <label class="row">音域（音階小鳥）
           <select id="set-voice"><option value="auto">開始前量我的低音和高音（建議）</option><option value="low">低音（多數男聲）</option><option value="mid">中音</option><option value="high">高音（多數女聲、小朋友）</option></select></label>
+        <label class="row">節奏太鼓判定時間微調
+          <select id="set-lat"><option value="0">0（不補償）</option><option value="0.03">+0.03 秒</option><option value="0.06">+0.06 秒（建議）</option><option value="0.09">+0.09 秒</option><option value="0.12">+0.12 秒</option><option value="0.16">+0.16 秒（藍牙耳機麥克風）</option></select></label>
+        <div class="small-note" style="margin:0">明明拍準了卻常顯示「晚了」→ 調大；常顯示「早了」→ 調小。只影響麥克風模式。</div>
         <label class="row">麥克風
           <select id="mic-select"><option value="">預設麥克風</option></select></label>
         <label class="row">顯示右側聲音計 <input type="checkbox" id="set-meter"></label>
@@ -337,7 +346,7 @@
       </div></details>
     <details class="set-sec" data-sec="rec"><summary><span class="t">🏆 紀錄</span><span class="v" id="sv-rec"></span></summary>
       <div class="set-body">
-        <button id="reset-records" type="button" class="btn secondary">清除三個遊戲的最高分與排行榜</button>
+        <button id="reset-records" type="button" class="btn secondary">清除四個遊戲的最高分與排行榜</button>
       </div></details>
     <details class="set-sec" data-sec="about"><summary><span class="t">ℹ 關於本工具</span><span class="v">創作者・手冊・警語</span></summary>
       <div class="set-body">
@@ -365,7 +374,7 @@ const clamp = E.clamp, rand = (a, b) => a + Math.random() * (b - a);
 
 /* ---------- 設定 ---------- */
 const SET_KEY = 'vcg-settings';
-const SET = Object.assign({ game: 'balloon', diff: 'normal', duration: 60, lives: '3', sound: 'mouse', sens: 3, shout: 0.35, voice: 'auto', mic: '', meter: true, debug: false },
+const SET = Object.assign({ game: 'balloon', diff: 'normal', duration: 60, lives: '3', sound: 'mouse', sens: 3, shout: 0.35, voice: 'auto', mic: '', meter: true, debug: false, drumLat: 0.06 },
   (() => { try { return JSON.parse(lsGet(SET_KEY, '{}')) || {}; } catch (e) { return {}; } })());
 const saveSet = () => lsSet(SET_KEY, JSON.stringify(SET));
 const CAL_KEY = 'vcg-cal';
@@ -376,11 +385,13 @@ const GAMES = {
   balloon: { name: '熱氣球飛行', emoji: '🎈' },
   frog: { name: '大聲跳跳蛙', emoji: '🐸' },
   bird: { name: '音階小鳥', emoji: '🐤' },
+  drum: { name: '節奏太鼓', emoji: '🥁' },
 };
 const DIFF = {
   balloon: { easy: { speed: 15, gap: 46, spacing: 50 }, normal: { speed: 19, gap: 37, spacing: 44 }, hard: { speed: 24, gap: 31, spacing: 40 } },
   frog: { easy: { speed: 21, minGap: 40, crow: false }, normal: { speed: 26, minGap: 34, crow: true }, hard: { speed: 32, minGap: 30, crow: true } },
   bird: { easy: { speed: 13, tol: 7.5, step: 0.62 }, normal: { speed: 16, tol: 6, step: 0.52 }, hard: { speed: 20, tol: 4.8, step: 0.44 } },
+  drum: { easy: { fall: 22 }, normal: { fall: 26 }, hard: { fall: 31 } },   // fall：鼓點每秒落下幾個世界單位
 };
 const DIFF_NAME = { easy: '簡單', normal: '普通', hard: '困難' };
 const SOLFA_LANES = ['Do', 'Re', 'Mi', 'Fa', 'Sol', 'La', 'Si', 'Do'];
@@ -501,7 +512,7 @@ function sfx(type) {
     SFXCTX = SFXCTX || AU.ctx || new (window.AudioContext || window.webkitAudioContext)();
     const c = SFXCTX, t = c.currentTime, o = c.createOscillator(), g = c.createGain();
     const P = { star: [880, 1320, 0.12, 'triangle'], pass: [520, 660, 0.08, 'sine'], hit: [220, 90, 0.25, 'sawtooth'], jump: [300, 600, 0.12, 'square'],
-      coin: [990, 1480, 0.1, 'triangle'], note: [660, 990, 0.08, 'sine'], go: [440, 880, 0.2, 'triangle'], end: [660, 330, 0.4, 'triangle'] }[type] || [440, 440, .1, 'sine'];
+      coin: [990, 1480, 0.1, 'triangle'], note: [660, 990, 0.08, 'sine'], go: [440, 880, 0.2, 'triangle'], end: [660, 330, 0.4, 'triangle'], don: [150, 70, 0.16, 'sine'], kon: [520, 400, 0.06, 'triangle'], tick: [1600, 1600, 0.025, 'square'] }[type] || [440, 440, .1, 'sine'];
     o.type = P[3]; o.frequency.setValueAtTime(P[0], t); o.frequency.exponentialRampToValueAtTime(P[1], t + P[2]);
     g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.16, t + 0.01); g.gain.exponentialRampToValueAtTime(0.0001, t + P[2] + 0.05);
     o.connect(g); g.connect(c.destination); o.start(t); o.stop(t + P[2] + 0.08);
@@ -527,9 +538,16 @@ function startGame() {
   if (G.game === 'balloon') G.p = { x: VW * 0.24, y: 50, vy: 0 };
   if (G.game === 'frog') G.p = { x: VW * 0.22, y: GROUND, vy: 0, ground: true, air: 0, mouth: 0 };
   if (G.game === 'bird') G.p = { x: VW * 0.25, y: 60, vy: 0, wing: 0 };
-  // 第一個障礙／音符直接放在角色前方，「開始！」後約 3 秒到達（之後才從畫面右邊外生成）
-  const x0 = G.p.x + G.d.speed * 3;
-  if (G.game === 'balloon') spawnBalloon(x0); else if (G.game === 'frog') spawnFrog(x0); else spawnBird(x0);
+  if (G.game === 'drum') {
+    // 譜面在「開始！」後 3 秒出現第一個鼓點；不扣生命，打完整首看命中率
+    G.p = { x: VW / 2, pulse: 0, lastBeat: -1 }; G.lives = Infinity;
+    G.chart = E.drumChart(SET.diff, +SET.duration, Math.random, 3); G.total = G.chart.filter(n => n.k !== 'r').length;
+    G.jd = { perfect: 0, good: 0, miss: 0, roll: 0, early: 0, late: 0, quiet: 0 };
+  } else {
+    // 第一個障礙／音符直接放在角色前方，「開始！」後約 3 秒到達（之後才從畫面右邊外生成）
+    const x0 = G.p.x + G.d.speed * 3;
+    if (G.game === 'balloon') spawnBalloon(x0); else if (G.game === 'frog') spawnFrog(x0); else spawnBird(x0);
+  }
   ['start-screen', 'calib-screen', 'gameover-screen'].forEach(id => $(id).classList.add('hidden'));
   $('hud').classList.add('on');
   modeBadge(); renderHUD(); applyMeterVis();
@@ -556,6 +574,7 @@ function renderStats() {
   const st = G.st; let tiles;
   if (G.game === 'balloon') tiles = [[G.passed, '穿過關卡'], [G.collected, '星星'], [G.hits, '撞到'], [st.longest.toFixed(1) + 's', '最長一口氣']];
   else if (G.game === 'frog') tiles = [[G.passed, '跳過障礙'], [G.collected, '金幣'], [G.hits, '撞到'], [G.maxCombo, '最高連續']];
+  else if (G.game === 'drum') { const hit = G.jd.perfect + G.jd.good; tiles = [[G.jd.perfect, '完美'], [G.jd.good, '不錯'], [G.total ? Math.round(hit / G.total * 100) + '%' : '0%', '命中率'], [G.maxCombo, '最高連擊']]; }
   else tiles = [[G.collected, '吃到音符'], [G.total ? Math.round(G.collected / G.total * 100) + '%' : '0%', '命中率'], [G.maxCombo, '最高連擊'], [st.longest.toFixed(1) + 's', '最長一口氣']];
   $('stats').innerHTML = tiles.map(([v, l]) => `<div><b>${v}</b>${l}</div>`).join('');
 }
@@ -568,21 +587,27 @@ function renderVoiceReport() {
     const lo = E.hzToNote(st.minHz), hi = E.hzToNote(st.maxHz);
     html += `<br>這局唱到的音域：<b>${lo.name}（${lo.solfa}）</b> ～ <b>${hi.name}（${hi.solfa}）</b>，約 <b>${Math.max(0, hi.midi - lo.midi)}</b> 個半音`;
   }
+  if (G.game === 'drum' && G.jd) {
+    const off = G.jd.early + G.jd.late;
+    html += `<br>🥁 錯過 <b>${G.jd.miss}</b> 個・連打 <b>${G.jd.roll}</b> 下`;
+    if (off >= 5) html += G.jd.late > G.jd.early * 2 ? '・<b>常常偏晚</b>' + (G.mode === 'mic' ? '（可到 ⚙ 把「判定時間微調」調大一格）' : '') : G.jd.early > G.jd.late * 2 ? '・<b>常常偏早</b>' + (G.mode === 'mic' ? '（可到 ⚙ 把「判定時間微調」調小一格）' : '') : '・快慢很平均';
+    if (G.jd.quiet) html += `・大鼓點有 ${G.jd.quiet} 次不夠大聲`;
+  }
   html += '<br><span style="opacity:.75;font-size:12px">只是遊戲紀錄，不是嗓音或肺功能檢測。</span>';
   el.innerHTML = html;
 }
 function modeBadge() {
   const g = GAMES[G.game];
   const tip = G.mode === 'mic'
-    ? { balloon: '持續發出「啊——」火越大越往上', frog: '喊「嘿！」跳，越大聲越高；烏鴉來了要安靜', bird: '唱高往上、唱低往下，去吃音符' }[G.game]
-    : { balloon: '按住滑鼠／螢幕／空白鍵往上飛', frog: '按一下跳，按久一點跳更高', bird: '按住並上下移動（或按住數字鍵 1～8）' }[G.game];
+    ? { balloon: '持續發出「啊——」火越大越往上', frog: '喊「嘿！」跳，越大聲越高；烏鴉來了要安靜', bird: '唱高往上、唱低往下，去吃音符', drum: '鼓點碰到鼓面時拍手或喊「咚！」，大鼓點要用力' }[G.game]
+    : { balloon: '按住滑鼠／螢幕／空白鍵往上飛', frog: '按一下跳，按久一點跳更高', bird: '按住並上下移動（或按住數字鍵 1～8）', drum: '鼓點碰到鼓面時點一下畫面（或按空白鍵、F、J）' }[G.game];
   $('mode-badge').textContent = `${g.emoji} ${g.name}・${DIFF_NAME[SET.diff]}｜${G.mode === 'mic' ? '🎤' : '🖱️'} ${tip}`;
 }
 function applyMeterVis() {
   $('meter').classList.toggle('hide', !SET.meter);
   $('debug').classList.toggle('on', !!SET.debug);
   const th = $('meter-th');
-  if (G.game === 'frog') { th.style.display = 'block'; th.style.bottom = ((G.mode === 'mic' ? +SET.shout : 0.4) * 100) + '%'; }
+  if (G.game === 'frog' || G.game === 'drum') { th.style.display = 'block'; th.style.bottom = ((G.mode === 'mic' ? +SET.shout : 0.4) * 100) + '%'; }
   else if (G.game === 'balloon') { th.style.display = 'block'; th.style.bottom = '21%'; }
   else th.style.display = 'none';
   $('snd-btn').textContent = soundOn() ? '🔊' : '🔇';
@@ -594,7 +619,7 @@ function renderHUD() {
   $('time-num').textContent = Math.ceil(tl);
   $('time-fill').style.width = (tl / +SET.duration * 100) + '%';
   $('time-fill').classList.toggle('low', tl <= 10);
-  $('lives').textContent = G.game === 'bird' ? '' : (G.lives === Infinity ? '🌱 練習' : '❤️'.repeat(Math.max(0, G.lives)) + '🤍'.repeat(Math.max(0, +SET.lives - G.lives)));
+  $('lives').textContent = G.game === 'bird' || G.game === 'drum' ? '' : (G.lives === Infinity ? '🌱 練習' : '❤️'.repeat(Math.max(0, G.lives)) + '🤍'.repeat(Math.max(0, +SET.lives - G.lives)));
   const cb = $('combo');
   const txt = G.combo >= 3 ? `${G.combo} 連續！` : '';
   if (cb.textContent !== txt) { cb.textContent = txt; if (txt) { cb.classList.remove('big'); void cb.offsetWidth; cb.classList.add('big'); } }
@@ -749,6 +774,67 @@ function updateBird(dt) {
   }
 }
 
+/* ---------- 🥁 節奏太鼓 ---------- */
+// 判定以「應該打的時間」為準：麥克風偵測本身會晚一點，所以用 G.t 減掉延遲補償（SET.drumLat）再比對
+const DRUM_HIT_Y = 70;                                   // 鼓面（判定位置）的世界 y
+const drumSpb = () => 60 / E.DRUM_BPM[SET.diff];
+const drumLat = () => (G.feed ? 0 : G.mode === 'mic' ? +SET.drumLat : 0.01);
+function drumIdle(dt) {                                  // 倒數時：可以先試打，不計分
+  G.p.pulse = Math.max(0, G.p.pulse - dt * 3);
+  if (IN.onset) { G.p.pulse = 1; sfx('don'); }
+}
+function drumScore(n, grade, dt, peak) {
+  const p = G.p;
+  G.combo++; G.maxCombo = Math.max(G.maxCombo, G.combo); G.collected++;
+  let pts = grade === 'perfect' ? 10 : 5, label = grade === 'perfect' ? '完美' : '不錯';
+  const col = grade === 'perfect' ? '#ffd84d' : '#5ef2d6';
+  if (n.k === 'b') {
+    // 大鼓點：麥克風模式要比「喊一聲門檻」再大聲一截；滑鼠／鍵盤一律算大聲
+    const loud = G.mode !== 'mic' || G.feed ? true : peak >= Math.min(0.85, +SET.shout + 0.3);
+    if (loud) { pts *= 2; label += '！大鼓'; } else { G.jd.quiet++; label += '（再大聲點）'; }
+  }
+  pts += Math.min(G.combo, 10);
+  G.jd[grade]++;
+  if (Math.abs(dt) > 0.035) { if (dt < 0) G.jd.early++; else G.jd.late++; }
+  G.score += pts;
+  floatText(p.x, DRUM_HIT_Y - 11, label, col);
+  p.pulse = 1; burst(p.x, DRUM_HIT_Y, n.k === 'b' ? '#ff4f8b' : '#5ef2d6', n.k === 'b' ? 18 : 10, n.k === 'b' ? 32 : 24);
+  sfx(n.k === 'b' ? 'don' : 'kon');
+}
+function updateDrum(dt) {
+  const p = G.p, win = E.DRUM_WIN[SET.diff], now = G.t - drumLat(), spb = drumSpb();
+  p.pulse = Math.max(0, p.pulse - dt * 3);
+  // 第一個鼓點前數四拍（有開音效時「滴」一聲，畫面上拍線閃一下）
+  const beat = Math.floor((G.t - 3) / spb);
+  if (beat !== p.lastBeat) { p.lastBeat = beat; if (beat >= -4 && beat < 0) { sfx('tick'); floatText(p.x + 22, 12, String(beat + 5), 'rgba(255,255,255,.75)'); } }
+  // 大鼓點等 0.08 秒取最大音量再算（剛觸發的那一格音量還在往上爬）
+  if (p.pend) {
+    p.pend.peak = Math.max(p.pend.peak, IN.level);
+    if (G.t >= p.pend.until) { const q = p.pend; p.pend = null; drumScore(q.n, q.grade, q.dt, q.peak); }
+  }
+  if (IN.onset) {
+    const roll = E.drumRollAt(G.chart, now, win);
+    if (roll) {
+      roll.hits = (roll.hits || 0) + 1; G.jd.roll++; G.score += 2; sfx('kon');
+      p.pulse = 1; burst(p.x, DRUM_HIT_Y, '#ffd84d', 6, 18); floatText(p.x + rand(-9, 9), DRUM_HIT_Y - 9, '+2', '#ffd84d');
+    } else {
+      const j = E.drumJudge(G.chart, now, win);
+      if (j) {
+        const n = G.chart[j.idx]; n.done = true; n.grade = j.grade;
+        if (n.k === 'b' && G.mode === 'mic' && !G.feed) p.pend = { n, grade: j.grade, dt: j.dt, peak: IN.level, until: G.t + 0.08 };
+        else drumScore(n, j.grade, j.dt, IN.level);
+      } else { p.pulse = 0.45; sfx('kon'); }            // 沒對到鼓點的空拍：不扣分也不斷連擊
+    }
+  }
+  // 錯過
+  for (const n of G.chart) {
+    if (n.done) continue;
+    if (n.t > now + 1) break;
+    if (n.k === 'r') { if (now > n.t + n.len + win.good) n.done = true; continue; }
+    if (now > n.t + win.good) { n.done = true; n.miss = true; G.jd.miss++; G.combo = 0; floatText(p.x, DRUM_HIT_Y - 11, '錯過', '#ff8fa3'); }
+  }
+}
+
 /* ---------- 主迴圈 ---------- */
 function trackStats(dt) {
   const st = G.st;
@@ -769,10 +855,11 @@ function update(dt) {
     // 倒數時角色也會跟著聲音動，先熟悉一下（沒有障礙、不計分）
     if (G.game === 'balloon') balloonPhysics(G.p, dt);
     else if (G.game === 'frog') frogPhysics(G.p, dt);
+    else if (G.game === 'drum') drumIdle(dt);
     else birdPhysics(G.p, dt);
   } else if (G.state === 'playing') {
     G.t += dt; G.timeLeft -= dt; G.invul = Math.max(0, G.invul - dt);
-    if (G.game === 'balloon') updateBalloon(dt); else if (G.game === 'frog') updateFrog(dt); else updateBird(dt);
+    if (G.game === 'balloon') updateBalloon(dt); else if (G.game === 'frog') updateFrog(dt); else if (G.game === 'drum') updateDrum(dt); else updateBird(dt);
     trackStats(dt);
     G.objs = G.objs.filter(o => o.x > G.scroll - 30);
     if (G.timeLeft <= 0) { G.timeLeft = 0; endGame('time'); }
@@ -794,7 +881,7 @@ const FONT = '"Microsoft JhengHei", "Noto Sans TC", sans-serif';
 function draw() {
   ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
   const game = G.state === 'menu' || !G.p ? SET.game : G.game;
-  if (game === 'balloon') drawBalloonScene(); else if (game === 'frog') drawFrogScene(); else drawBirdScene();
+  if (game === 'balloon') drawBalloonScene(); else if (game === 'frog') drawFrogScene(); else if (game === 'drum') drawDrumScene(); else drawBirdScene();
   for (const f of G.fx) {
     ctx.globalAlpha = clamp(f.life / f.max, 0, 1);
     if (f.t === 'p') { ctx.fillStyle = f.c; ctx.beginPath(); ctx.arc(X(f.x), Y(f.y), L(f.r), 0, 7); ctx.fill(); }
@@ -1003,6 +1090,133 @@ function drawChick(x, y, wing, level) {
   if (m > 0.15 && live()) { ctx.fillStyle = `rgba(255,255,255,${0.4 + m * 0.4})`; ctx.font = `${Math.round(L(3))}px sans-serif`; ctx.textAlign = 'center'; ctx.fillText('♪', x + L(6.5), y - L(3 + Math.sin(performance.now() / 150))); }
 }
 
+/* ---------- 🥁 節奏太鼓場景：夜晚的小舞台、直向軌道、原創木桶鼓（畫面全部程式繪製） ---------- */
+function drawDrumScene() {
+  sky([[0, '#100d33'], [0.55, '#271a5c'], [1, '#43204f']]);
+  const t = performance.now() / 1000;
+  ctx.fillStyle = 'rgba(255,255,255,.75)';
+  for (let i = 0; i < 46; i++) { const sx = (i * 131.7) % W, sy = (i * 53.3) % (H * 0.55); ctx.globalAlpha = 0.35 + 0.35 * Math.sin(t * 1.3 + i); ctx.fillRect(sx, sy, 1.6, 1.6); }
+  ctx.globalAlpha = 1;
+  const cx = X(VW / 2), hy = Y(DRUM_HIT_Y), pulse = live() && G.p ? G.p.pulse || 0 : 0.5 + 0.5 * Math.sin(t * 4);
+  // 舞台燈：兩道光束往鼓面照，打到時變亮
+  for (const side of [-1, 1]) {
+    const g = ctx.createLinearGradient(cx + side * W * 0.45, Y(TOP()), cx, hy);
+    g.addColorStop(0, `rgba(255,216,77,${0.16 + pulse * 0.14})`); g.addColorStop(1, 'rgba(255,216,77,0)');
+    ctx.fillStyle = g; ctx.beginPath(); ctx.moveTo(cx + side * W * 0.45, Y(TOP())); ctx.lineTo(cx + side * W * 0.45 + side * L(6), Y(TOP())); ctx.lineTo(cx + side * L(10), hy); ctx.lineTo(cx - side * L(4), hy); ctx.fill();
+  }
+  // 頂上一串彩色小燈
+  const top = Y(TOP()) + L(4), cols = ['#ff4f8b', '#ffd84d', '#5ef2d6', '#9b7bff'];
+  ctx.strokeStyle = 'rgba(255,255,255,.25)'; ctx.lineWidth = 1; ctx.beginPath();
+  for (let sx = 0; sx <= W; sx += 4) { const yy = top + Math.sin(sx / W * Math.PI * 3) * L(2.2) + L(2.2); sx === 0 ? ctx.moveTo(sx, yy) : ctx.lineTo(sx, yy); } ctx.stroke();
+  for (let k = 0, sx = L(3); sx < W; sx += L(7), k++) { const yy = top + Math.sin(sx / W * Math.PI * 3) * L(2.2) + L(3.4); ctx.fillStyle = cols[k % 4]; ctx.globalAlpha = 0.55 + 0.45 * Math.sin(t * 3 + k); ctx.beginPath(); ctx.arc(sx, yy, L(0.9), 0, 7); ctx.fill(); }
+  ctx.globalAlpha = 1;
+  // 地板與觀眾剪影
+  ctx.fillStyle = '#1c1238'; ctx.fillRect(0, Y(GROUND), W, H - Y(GROUND));
+  ctx.fillStyle = '#120b26';
+  for (let sx = -L(2), k = 0; sx < W + L(4); sx += L(4.2), k++) {
+    if (Math.abs(sx - cx) < L(20)) continue;
+    const bob = live() && G.state === 'playing' ? Math.abs(Math.sin((G.t / drumSpb() + k * 0.5) * Math.PI)) * L(0.8) : 0;
+    const yy = Y(GROUND + 7) - bob - (k % 3) * L(0.5);
+    ctx.beginPath(); ctx.arc(sx, yy - L(3.2), L(1.6), 0, 7); ctx.fill();
+    ctx.beginPath(); ctx.ellipse(sx, yy + L(1), L(2.3), L(3), 0, Math.PI, 0); ctx.fill(); ctx.fillRect(sx - L(2.3), yy + L(0.9), L(4.6), H);
+  }
+  // 軌道
+  const laneW = L(12), fall = (G.d && G.game === 'drum' ? G.d.fall : DIFF.drum[SET.diff].fall);
+  const lg = ctx.createLinearGradient(0, Y(TOP()), 0, hy);
+  lg.addColorStop(0, 'rgba(94,242,214,0)'); lg.addColorStop(1, 'rgba(94,242,214,.16)');
+  ctx.fillStyle = lg; ctx.fillRect(cx - laneW / 2, Y(TOP()), laneW, hy - Y(TOP()));
+  ctx.strokeStyle = 'rgba(94,242,214,.35)'; ctx.lineWidth = 1.5;
+  ctx.beginPath(); ctx.moveTo(cx - laneW / 2, Y(TOP())); ctx.lineTo(cx - laneW / 2, hy); ctx.moveTo(cx + laneW / 2, Y(TOP())); ctx.lineTo(cx + laneW / 2, hy); ctx.stroke();
+  // 鼓（先畫，鼓點落到鼓面上會蓋在上面）
+  drawBarrelDrum(cx, hy, pulse);
+  const playingDrum = live() && G.game === 'drum' && G.chart;
+  const nowT = playingDrum ? G.t : (t % 6) + 3;          // 主選單：示範鼓點一直落下
+  // 拍線（每拍一條，小節線比較亮）
+  const spb = 60 / E.DRUM_BPM[SET.diff];
+  for (let k = Math.floor((nowT - 3) / spb) - 1, n = 0; n < 16; k++, n++) {
+    const bt = 3 + k * spb, y = DRUM_HIT_Y - (bt - nowT) * fall;
+    if (y > DRUM_HIT_Y - 1) continue; if (y < TOP() - 2) break;
+    ctx.strokeStyle = k % 4 === 0 ? 'rgba(255,255,255,.32)' : 'rgba(255,255,255,.12)'; ctx.lineWidth = k % 4 === 0 ? 2 : 1;
+    ctx.beginPath(); ctx.moveTo(cx - laneW / 2, Y(y)); ctx.lineTo(cx + laneW / 2, Y(y)); ctx.stroke();
+  }
+  // 鼓點
+  const notes = playingDrum ? G.chart : DRUM_DEMO;
+  for (const n of notes) {
+    const y = DRUM_HIT_Y - (n.t - nowT) * fall;
+    if (y < TOP() - 10) break;
+    if (n.k === 'r') {
+      const y2 = DRUM_HIT_Y - (n.t + n.len - nowT) * fall;
+      if (y2 > DRUM_HIT_Y) continue;
+      drawRoll(cx, Y(Math.min(y, DRUM_HIT_Y)), Y(y2), n.hits || 0);
+      continue;
+    }
+    if (playingDrum && n.done && !n.miss) continue;
+    if (y > DRUM_HIT_Y + 14) continue;
+    drawBeat(cx, Y(y), n.k === 'b', n.miss);
+  }
+  // 判定圈（鼓面上方的光圈）
+  ctx.strokeStyle = `rgba(255,255,255,${0.55 + pulse * 0.45})`; ctx.lineWidth = L(0.55) + pulse * L(0.5);
+  ctx.beginPath(); ctx.ellipse(cx, hy, L(5.4), L(5.4), 0, 0, 7); ctx.stroke();
+  if (pulse > 0.05) { ctx.strokeStyle = `rgba(255,216,77,${pulse * 0.8})`; ctx.lineWidth = 2; ctx.beginPath(); ctx.ellipse(cx, hy, L(5.4 + (1 - pulse) * 9), L(5.4 + (1 - pulse) * 9) * 0.45, 0, 0, 7); ctx.stroke(); }
+  if (!live()) { ctx.fillStyle = 'rgba(255,255,255,.8)'; ctx.font = `800 ${Math.round(clamp(L(2.8), 11, 18))}px ${FONT}`; ctx.textAlign = 'center'; ctx.fillText('拍手或喊「咚！」', cx, hy + L(19)); }
+}
+const DRUM_DEMO = [{ t: 3.6, k: 's' }, { t: 4.2, k: 's' }, { t: 4.8, k: 'b' }, { t: 6, k: 'r', len: 1.2 }, { t: 7.8, k: 's' }, { t: 8.4, k: 'b' }];
+function drawBeat(x, y, big, miss) {
+  const r = L(big ? 4.6 : 3.3);
+  ctx.globalAlpha = miss ? 0.3 : 1;
+  ctx.fillStyle = big ? 'rgba(255,79,139,.28)' : 'rgba(94,242,214,.25)'; ctx.beginPath(); ctx.arc(x, y, r * 1.45, 0, 7); ctx.fill();
+  const g = ctx.createRadialGradient(x - r * 0.35, y - r * 0.4, r * 0.1, x, y, r);
+  g.addColorStop(0, '#ffffff'); g.addColorStop(0.35, big ? '#ff8db5' : '#9ff8e6'); g.addColorStop(1, big ? '#e0306f' : '#1fbfa5');
+  ctx.fillStyle = g; ctx.beginPath(); ctx.arc(x, y, r, 0, 7); ctx.fill();
+  ctx.strokeStyle = '#fff'; ctx.lineWidth = L(0.45); ctx.stroke();
+  if (big) { ctx.fillStyle = '#fff'; ctx.font = `900 ${Math.round(r * 1.05)}px ${FONT}`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText('大', x, y + r * 0.05); ctx.textBaseline = 'alphabetic'; }
+  ctx.globalAlpha = 1;
+}
+function drawRoll(x, yBottom, yTop, hits) {
+  const w = L(6.4);
+  const g = ctx.createLinearGradient(x - w / 2, 0, x + w / 2, 0);
+  g.addColorStop(0, '#f2a516'); g.addColorStop(0.5, '#ffe58a'); g.addColorStop(1, '#f2a516');
+  ctx.fillStyle = g; ctx.strokeStyle = '#fff'; ctx.lineWidth = L(0.4);
+  ctx.beginPath(); ctx.roundRect ? ctx.roundRect(x - w / 2, yTop - w / 2, w, Math.max(w, yBottom - yTop + w), w / 2) : ctx.rect(x - w / 2, yTop - w / 2, w, yBottom - yTop + w); ctx.fill(); ctx.stroke();
+  ctx.fillStyle = '#5a3500'; ctx.font = `900 ${Math.round(L(2.4))}px ${FONT}`; ctx.textAlign = 'center';
+  const mid = (yTop + yBottom) / 2;
+  if (yBottom - yTop > L(7)) { ctx.fillText('連', x, mid - L(0.4)); ctx.fillText('打', x, mid + L(2.2)); }
+  if (hits) { ctx.fillStyle = '#ffd84d'; ctx.font = `900 ${Math.round(L(3))}px ${FONT}`; ctx.fillText(hits + ' 下', x + w, yBottom - L(3)); }
+}
+function drawBarrelDrum(x, y, pulse) {
+  // 原創木桶鼓：青綠木身＋金色箍＋銅釘＋米白鼓皮（鼓皮就是判定位置）
+  const rx = L(15), ry = L(4.8), h = L(16), sq = 1 - pulse * 0.06;
+  ctx.fillStyle = 'rgba(0,0,0,.35)'; ctx.beginPath(); ctx.ellipse(x, y + h + L(2), rx * 1.15, ry * 0.9, 0, 0, 7); ctx.fill();
+  // 腳架
+  ctx.strokeStyle = '#8a5a2b'; ctx.lineWidth = L(1);
+  [[-0.8, 1.25], [0.8, 1.25]].forEach(([a, b]) => { ctx.beginPath(); ctx.moveTo(x + rx * a, y + h * 0.7); ctx.lineTo(x + rx * b * Math.sign(a), y + h + L(2.5)); ctx.stroke(); });
+  // 鼓身
+  const bg = ctx.createLinearGradient(x - rx, 0, x + rx, 0);
+  bg.addColorStop(0, '#0f4d55'); bg.addColorStop(0.35, '#2aa59a'); bg.addColorStop(0.55, '#36b8ab'); bg.addColorStop(1, '#0c3e46');
+  ctx.fillStyle = bg; ctx.beginPath();
+  ctx.moveTo(x - rx, y); ctx.quadraticCurveTo(x - rx * 1.12, y + h / 2, x - rx, y + h);
+  ctx.ellipse(x, y + h, rx, ry, 0, Math.PI, 0, true);
+  ctx.quadraticCurveTo(x + rx * 1.12, y + h / 2, x + rx, y); ctx.closePath(); ctx.fill();
+  // 木紋
+  ctx.strokeStyle = 'rgba(0,0,0,.18)'; ctx.lineWidth = 1;
+  for (let k = -3; k <= 3; k++) { ctx.beginPath(); ctx.moveTo(x + k * rx / 4, y + ry * 0.6); ctx.quadraticCurveTo(x + k * rx / 4 * 1.1, y + h / 2, x + k * rx / 4, y + h + ry * 0.6); ctx.stroke(); }
+  // 金色箍
+  ctx.strokeStyle = '#e8b23a'; ctx.lineWidth = L(1);
+  [0.22, 0.82].forEach(f => { ctx.beginPath(); ctx.ellipse(x, y + h * f, rx * (1 + 0.1 * Math.sin(f * Math.PI)), ry, 0, 0, Math.PI); ctx.stroke(); });
+  // 鼓面
+  ctx.fillStyle = '#e9d9b0'; ctx.beginPath(); ctx.ellipse(x, y, rx, ry * sq, 0, 0, 7); ctx.fill();
+  const sg = ctx.createRadialGradient(x - rx * 0.3, y - ry * 0.3, 1, x, y, rx);
+  sg.addColorStop(0, `rgba(255,255,255,${0.55 + pulse * 0.4})`); sg.addColorStop(1, 'rgba(255,255,255,0)');
+  ctx.fillStyle = sg; ctx.beginPath(); ctx.ellipse(x, y, rx, ry * sq, 0, 0, 7); ctx.fill();
+  ctx.strokeStyle = '#c98f1e'; ctx.lineWidth = L(0.9); ctx.beginPath(); ctx.ellipse(x, y, rx, ry * sq, 0, 0, 7); ctx.stroke();
+  // 銅釘
+  ctx.fillStyle = '#ffd36b';
+  for (let k = 1; k < 12; k++) { const a = (k / 12) * Math.PI; ctx.beginPath(); ctx.arc(x + Math.cos(a) * rx * 0.97, y + h * 0.1 + Math.sin(a) * ry * 0.95, L(0.45), 0, 7); ctx.fill(); }   // 鼓皮下緣一圈（只畫前半圈）
+  // 鼓皮中央的小圖樣（音符）
+  ctx.fillStyle = `rgba(42,165,154,${0.35 + pulse * 0.4})`; ctx.font = `900 ${Math.round(L(4))}px ${FONT}`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  ctx.fillText('♪', x, y + L(0.2)); ctx.textBaseline = 'alphabetic';
+}
+
 /* ======================= 校準 ======================= */
 const CB = { steps: [], i: 0, t: 0, samples: [], res: {}, waiting: false, hold: 0 };
 function calibSteps() {
@@ -1013,7 +1227,8 @@ function calibSteps() {
       s.push({ id: 'high', title: '唱一個「高音」：啊——', hint: '用你唱得上去、不會破音的高音，穩穩唱 3 秒。', dur: 3, pitch: true, wait: true });
     }
     s.push({ id: 'loud', title: '最後，大聲唱「啊——」', hint: '用你等一下唱歌的音量就好（2 秒）。', dur: 2, wait: true });
-  } else s.push({ id: 'loud', title: G.game === 'frog' ? '大聲喊「嘿——！」' : '大聲發出「啊——」', hint: '用你等一下玩遊戲時「最大聲」的音量，持續 2 秒。', dur: 2, wait: true });
+  } else if (G.game === 'drum') s.push({ id: 'loud', title: '用力連續拍手（或一直喊「咚！咚！」）', hint: '用你等一下打鼓時最大的力氣，連續 2 秒。', dur: 2, wait: true });
+  else s.push({ id: 'loud', title: G.game === 'frog' ? '大聲喊「嘿——！」' : '大聲發出「啊——」', hint: '用你等一下玩遊戲時「最大聲」的音量，持續 2 秒。', dur: 2, wait: true });
   return s;
 }
 function needCalib() {
@@ -1155,10 +1370,11 @@ window.addEventListener('keydown', e => {
   if (e.code === 'Space') { PTR.keyHeld = true; e.preventDefault(); }
   if ((e.code === 'ArrowUp' || e.code === 'ArrowDown') && G.game === 'bird') { PTR.keyHeld = true; PTR.y = clamp(PTR.y + (e.code === 'ArrowUp' ? 0.07 : -0.07), 0, 1); e.preventDefault(); }
   if (e.code in KEY_LANES && G.game === 'bird') { PTR.keyLane = KEY_LANES[e.code]; PTR.keyHeld = true; }
+  if ((e.code === 'KeyF' || e.code === 'KeyJ') && G.game === 'drum') { PTR.keyHeld = true; e.preventDefault(); }
 });
 window.addEventListener('keyup', e => {
   if (e.code in KEY_LANES && PTR.keyLane === KEY_LANES[e.code]) { PTR.keyLane = -1; PTR.keyHeld = false; }
-  if (e.code === 'Space' || e.code === 'ArrowUp' || e.code === 'ArrowDown') PTR.keyHeld = false;
+  if (e.code === 'Space' || e.code === 'ArrowUp' || e.code === 'ArrowDown' || e.code === 'KeyF' || e.code === 'KeyJ') PTR.keyHeld = false;
 });
 
 /* ======================= 常用設定（收合式） ======================= */
@@ -1171,7 +1387,7 @@ function setSummaries() {
 function openSettings() {
   $('set-dur').value = SET.duration; $('set-lives').value = SET.lives; $('set-sound').value = SET.sound;
   $('set-sens').value = SET.sens; $('set-sens-val').textContent = SET.sens; $('set-shout').value = String(SET.shout); $('set-voice').value = SET.voice;
-  $('set-meter').checked = !!SET.meter; $('set-debug').checked = !!SET.debug; $('mic-select').value = SET.mic || '';
+  $('set-lat').value = String(SET.drumLat); $('set-meter').checked = !!SET.meter; $('set-debug').checked = !!SET.debug; $('mic-select').value = SET.mic || '';
   let open = []; try { open = JSON.parse(lsGet(OPEN_KEY, '[]')); } catch (e) {}
   document.querySelectorAll('details.set-sec').forEach(d => { d.open = open.includes(d.dataset.sec); });
   setSummaries();
@@ -1187,7 +1403,7 @@ $('settings-ok').addEventListener('click', () => {
   const micBefore = SET.mic, voiceBefore = SET.voice;
   SET.duration = +$('set-dur').value; SET.lives = $('set-lives').value; SET.sound = $('set-sound').value;
   SET.sens = +$('set-sens').value; SET.shout = +$('set-shout').value; SET.voice = $('set-voice').value;
-  SET.meter = $('set-meter').checked; SET.debug = $('set-debug').checked; SET.mic = $('mic-select').value;
+  SET.drumLat = +$('set-lat').value; SET.meter = $('set-meter').checked; SET.debug = $('set-debug').checked; SET.mic = $('mic-select').value;
   saveSet(); applyMeterVis();
   if (micBefore !== SET.mic && AU.stream) { stopMic(); G.calibrated = { volume: false, pitch: false }; }   // 換麥克風：下次開始重新開啟並校準
   if (voiceBefore !== SET.voice && SET.voice === 'auto') G.calibrated.pitch = false;
@@ -1199,7 +1415,7 @@ $('forget-cal').addEventListener('click', () => {
 });
 $('reset-records').addEventListener('click', () => {
   Object.keys(GAMES).forEach(g => { lsDel(bestKey(g)); lsDel(lbKey(g)); }); setSummaries(); renderMenu();
-  $('reset-records').textContent = '✅ 已清除'; setTimeout(() => { $('reset-records').textContent = '清除三個遊戲的最高分與排行榜'; }, 1500);
+  $('reset-records').textContent = '✅ 已清除'; setTimeout(() => { $('reset-records').textContent = '清除四個遊戲的最高分與排行榜'; }, 1500);
 });
 /* 使用警語：首次造訪自動跳出，之後可從按鈕再看 */
 const showWarn = () => $('warn-modal').classList.remove('hidden');
@@ -1215,7 +1431,7 @@ G._test = {
   feed: v => { G.feed = v; },
   start: (game, diff) => { if (game) SET.game = game; if (diff) SET.diff = diff; G.mode = 'mouse'; startGame(); G.cd = 0.001; },
   set: SET, E, IN, AU, getCal: () => CAL, setCal: c => { CAL = c; }, objs: () => G.objs, spawnBalloon, spawnFrog, spawnBird,
-  openCalib, CB, endGame, backToMenu, resize,
+  openCalib, CB, endGame, backToMenu, resize, chart: () => G.chart, jd: () => G.jd,
 };
 window.__game = G;
 

@@ -1,5 +1,5 @@
 // 僅供「加入主畫面」安裝需求使用：network-first + 同源快取備援，不快取跨網域請求（跑馬燈、訪客徽章）。
-const CACHE_NAME = 'voice-control-game-shell-v1';
+const CACHE_NAME = 'voice-control-game-shell-v2';
 const SHELL_FILES = [
   './',
   './index.html',
